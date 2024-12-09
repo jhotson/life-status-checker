@@ -33,7 +33,7 @@ export const CategoryCard = ({ category, value, onChange, onComplete }: Category
       </div>
       <RatingSlider value={value} onChange={handleChange} />
       <div className="text-center mt-6">
-        <p className="text-4xl font-bold text-primary">{value}</p>
+        <p className="text-4xl font-bold text-primary">{value === -1 ? '-' : value}</p>
       </div>
     </motion.div>
   );

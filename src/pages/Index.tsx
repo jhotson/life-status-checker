@@ -43,7 +43,7 @@ const categories = [
 
 const Index = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [ratings, setRatings] = useState(categories.map(() => 5));
+  const [ratings, setRatings] = useState(categories.map(() => -1));
   const [isComplete, setIsComplete] = useState(false);
 
   const handleRating = (index: number, value: number) => {
@@ -62,7 +62,7 @@ const Index = () => {
 
   const handleReset = () => {
     setCurrentIndex(0);
-    setRatings(categories.map(() => 5));
+    setRatings(categories.map(() => -1));
     setIsComplete(false);
   };
 
