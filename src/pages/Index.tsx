@@ -60,6 +60,12 @@ const Index = () => {
     }
   };
 
+  const handleBack = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
   const handleReset = () => {
     setCurrentIndex(0);
     setRatings(categories.map(() => -1));
@@ -77,6 +83,7 @@ const Index = () => {
               value={ratings[currentIndex]}
               onChange={(value) => handleRating(currentIndex, value)}
               onComplete={handleNext}
+              onBack={currentIndex > 0 ? handleBack : undefined}
             />
           ) : (
             <SummaryView
