@@ -6,6 +6,7 @@ import { useToast } from './ui/use-toast';
 import { AuthDialog } from './AuthDialog';
 import { HistoricalChart } from './HistoricalChart';
 import { TimeRangeSelector } from './TimeRangeSelector';
+import { CategoryChart } from './CategoryChart';
 
 export interface Rating {
   category: string;
@@ -121,7 +122,7 @@ export const SummaryView = ({ ratings, onReset }: SummaryViewProps) => {
         ))}
       </div>
 
-      <div className="text-center space-y-4">
+      <div className="text-center space-y-4 mb-8">
         <p className="text-lg mb-4">
           Overall Score: <span className="font-bold">{average.toFixed(1)}</span>
         </p>
@@ -140,6 +141,18 @@ export const SummaryView = ({ ratings, onReset }: SummaryViewProps) => {
             Start New Rating
           </Button>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold mb-4 text-center">Individual Category Trends</h3>
+        {ratings.map((rating, index) => (
+          <CategoryChart
+            key={rating.category}
+            data={historicalData}
+            category={rating.category}
+            colorIndex={index}
+          />
+        ))}
       </div>
     </motion.div>
   );
