@@ -1,20 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from './ui/button';
 import { useToast } from './ui/use-toast';
-import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
+import { AuthDialog } from './AuthDialog';
+import { HistoricalChart } from './HistoricalChart';
+import { TimeRangeSelector } from './TimeRangeSelector';
 
-interface Rating {
+export interface Rating {
   category: string;
   value: number;
 }
@@ -105,28 +98,7 @@ export const SummaryView = ({ ratings, onReset }: SummaryViewProps) => {
   }, [timeRange]);
 
   if (showAuth) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass-card p-8 rounded-2xl w-full max-w-md mx-auto"
-      >
-        <h2 className="text-2xl font-semibold mb-6 text-center">Sign in to Save Your Ratings</h2>
-        <Auth 
-          supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
-          theme="light"
-          providers={[]}
-        />
-        <Button
-          variant="ghost"
-          className="mt-4 w-full"
-          onClick={() => setShowAuth(false)}
-        >
-          Back to Summary
-        </Button>
-      </motion.div>
-    );
+    return <AuthDialog onClose={() => setShowAuth(false)} />;
   }
 
   return (
@@ -137,41 +109,8 @@ export const SummaryView = ({ ratings, onReset }: SummaryViewProps) => {
     >
       <h2 className="text-2xl font-semibold mb-6 text-center">Your Life Balance</h2>
       
-      <div className="h-64 mb-8">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={historicalData.length > 0 ? historicalData : ratings.map(r => ({ [r.category]: r.value }))}>
-            <XAxis dataKey="date" />
-            <YAxis domain={[0, 10]} />
-            <Tooltip />
-            {ratings.map((rating, index) => (
-              <Line
-                key={rating.category}
-                type="monotone"
-                dataKey={rating.category}
-                stroke={`hsl(${index * (360 / ratings.length)}, 70%, 50%)`}
-                strokeWidth={2}
-                dot={{ fill: `hsl(${index * (360 / ratings.length)}, 70%, 50%)` }}
-              />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      <div className="flex justify-between items-center mb-6">
-        <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select time range" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="week">1 Week</SelectItem>
-            <SelectItem value="month">1 Month</SelectItem>
-            <SelectItem value="3months">3 Months</SelectItem>
-            <SelectItem value="6months">6 Months</SelectItem>
-            <SelectItem value="year">1 Year</SelectItem>
-            <SelectItem value="2years">2 Years</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <HistoricalChart historicalData={historicalData} ratings={ratings} />
+      <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
 
       <div className="grid grid-cols-2 gap-4 mb-8">
         {ratings.map((rating) => (
