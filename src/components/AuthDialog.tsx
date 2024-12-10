@@ -13,22 +13,6 @@ interface AuthDialogProps {
 export const AuthDialog = ({ onClose }: AuthDialogProps) => {
   const { toast } = useToast();
 
-  const handleAuthError = (error: Error) => {
-    if (error.message.includes('User already registered')) {
-      toast({
-        title: "Account exists",
-        description: "This email is already registered. Please sign in instead.",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Authentication error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -41,7 +25,13 @@ export const AuthDialog = ({ onClose }: AuthDialogProps) => {
         appearance={{ theme: ThemeSupa }}
         theme="light"
         providers={[]}
-        onError={handleAuthError}
+        localization={{
+          variables: {
+            sign_up: {
+              email_exists_error: 'This email is already registered. Please sign in instead.',
+            }
+          }
+        }}
       />
       <Button
         variant="ghost"
