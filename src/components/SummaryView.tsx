@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from './ui/button';
@@ -20,7 +20,7 @@ interface SummaryViewProps {
 
 export const SummaryView = ({ ratings, onReset }: SummaryViewProps) => {
   const { toast } = useToast();
-  const [timeRange, setTimeRange] = useState('week');
+  const [timeRange, setTimeRange] = useState('month');
   const [showAuth, setShowAuth] = useState(false);
   const [historicalData, setHistoricalData] = useState<any[]>([]);
   const average = ratings.reduce((acc, curr) => acc + curr.value, 0) / ratings.length;
@@ -65,13 +65,12 @@ export const SummaryView = ({ ratings, onReset }: SummaryViewProps) => {
 
     let daysAgo;
     switch (range) {
-      case 'week': daysAgo = 7; break;
       case 'month': daysAgo = 30; break;
       case '3months': daysAgo = 90; break;
       case '6months': daysAgo = 180; break;
       case 'year': daysAgo = 365; break;
       case '2years': daysAgo = 730; break;
-      default: daysAgo = 7;
+      default: daysAgo = 30;
     }
 
     const { data, error } = await supabase
@@ -84,19 +83,39 @@ export const SummaryView = ({ ratings, onReset }: SummaryViewProps) => {
       const groupedData = data.reduce((acc: any, curr) => {
         const date = new Date(curr.created_at).toLocaleDateString();
         if (!acc[date]) {
-          acc[date] = { date };
+          acc[date] = { date, average: 0, count: 0 };
         }
         acc[date][curr.category] = curr.value;
+        acc[date].average += curr.value;
+        acc[date].count += 1;
         return acc;
       }, {});
+
+      // Calculate the average for each date
+      Object.values(groupedData).forEach((day: any) => {
+        day.average = day.average / day.count;
+        delete day.count;
+      });
 
       setHistoricalData(Object.values(groupedData));
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     loadHistoricalData(timeRange);
   }, [timeRange]);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN') {
+        await handleSave();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   if (showAuth) {
     return <AuthDialog onClose={() => setShowAuth(false)} />;
@@ -108,9 +127,12 @@ export const SummaryView = ({ ratings, onReset }: SummaryViewProps) => {
       animate={{ opacity: 1, y: 0 }}
       className="glass-card p-8 rounded-2xl w-full max-w-2xl mx-auto"
     >
-      <h2 className="text-2xl font-semibold mb-6 text-center">Your Life Balance</h2>
+      <h2 className="text-2xl font-semibold mb-2 text-center">Your Life Balance</h2>
+      <p className="text-lg text-center mb-6">
+        Overall Score: <span className="font-bold">{average.toFixed(1)}</span>
+      </p>
       
-      <HistoricalChart historicalData={historicalData} ratings={ratings} />
+      <HistoricalChart historicalData={historicalData} ratings={ratings} showOverallTrend={true} />
       <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
 
       <div className="grid grid-cols-2 gap-4 mb-8">
@@ -122,25 +144,20 @@ export const SummaryView = ({ ratings, onReset }: SummaryViewProps) => {
         ))}
       </div>
 
-      <div className="text-center space-y-4 mb-8">
-        <p className="text-lg mb-4">
-          Overall Score: <span className="font-bold">{average.toFixed(1)}</span>
-        </p>
-        <div className="flex gap-4 justify-center">
-          <Button
-            onClick={handleSave}
-            className="px-6 py-3 bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-opacity"
-          >
-            Save Ratings
-          </Button>
-          <Button
-            onClick={onReset}
-            variant="outline"
-            className="px-6 py-3 rounded-full"
-          >
-            Start New Rating
-          </Button>
-        </div>
+      <div className="flex gap-4 justify-center mb-8">
+        <Button
+          onClick={handleSave}
+          className="px-6 py-3 bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-opacity"
+        >
+          Save Ratings
+        </Button>
+        <Button
+          onClick={onReset}
+          variant="outline"
+          className="px-6 py-3 rounded-full"
+        >
+          Start New Rating
+        </Button>
       </div>
 
       <div className="mt-8">
