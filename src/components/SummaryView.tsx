@@ -7,6 +7,8 @@ import { AuthDialog } from './AuthDialog';
 import { HistoricalChart } from './HistoricalChart';
 import { TimeRangeSelector } from './TimeRangeSelector';
 import { CategoryChart } from './CategoryChart';
+import { RatingSlider } from './RatingSlider';
+import MotivationMessage from './MotivationMessage';
 
 export interface Rating {
   category: string;
@@ -23,6 +25,8 @@ export const SummaryView = ({ ratings, onReset }: SummaryViewProps) => {
   const [timeRange, setTimeRange] = useState('month');
   const [showAuth, setShowAuth] = useState(false);
   const [historicalData, setHistoricalData] = useState<any[]>([]);
+  const [showMotivation, setShowMotivation] = useState(false);
+  const [motivationRating, setMotivationRating] = useState(-1);
   const average = ratings.reduce((acc, curr) => acc + curr.value, 0) / ratings.length;
 
   const handleSave = async () => {
@@ -121,6 +125,10 @@ export const SummaryView = ({ ratings, onReset }: SummaryViewProps) => {
     return <AuthDialog onClose={() => setShowAuth(false)} />;
   }
 
+  if (showMotivation) {
+    return <MotivationMessage />;
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -170,6 +178,21 @@ export const SummaryView = ({ ratings, onReset }: SummaryViewProps) => {
             colorIndex={index}
           />
         ))}
+      </div>
+
+      {/* Easter Egg Section */}
+      <div className="mt-12 pt-8 border-t border-border">
+        <h3 className="text-xl font-semibold mb-4 text-center">🔥 One Last Question 🔥</h3>
+        <p className="text-center mb-6 text-lg">How bad do you want to win in life?</p>
+        <div className="max-w-md mx-auto">
+          <RatingSlider
+            value={motivationRating}
+            onChange={(value) => {
+              setMotivationRating(value);
+              setTimeout(() => setShowMotivation(true), 500);
+            }}
+          />
+        </div>
       </div>
     </motion.div>
   );
