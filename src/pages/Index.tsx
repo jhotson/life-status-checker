@@ -73,7 +73,15 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold mb-3 text-primary animate-fade-in">
+          Daily Sevens
+        </h1>
+        <h2 className="text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in">
+          Your personal space to reflect, realign, and track balance across all seven areas of your life.
+        </h2>
+      </div>
       <div className="w-full max-w-4xl">
         <AnimatePresence mode="wait">
           {!isComplete ? (
