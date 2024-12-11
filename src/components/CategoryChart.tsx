@@ -1,5 +1,6 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area } from 'recharts';
+import { cn } from "@/lib/utils";
 
 interface CategoryChartProps {
   data: any[];
