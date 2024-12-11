@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from './ui/button';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from './ui/use-toast';
+import { cn } from "@/lib/utils";
 
 interface AuthDialogProps {
   onClose: () => void;
@@ -12,6 +13,22 @@ interface AuthDialogProps {
 
 export const AuthDialog = ({ onClose }: AuthDialogProps) => {
   const { toast } = useToast();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        toast({
+          title: "Successfully signed in!",
+          description: "Welcome to the app.",
+        });
+        onClose();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [onClose, toast]);
 
   return (
     <motion.div

@@ -1,11 +1,6 @@
 import React from 'react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
+import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
 
 interface TimeRangeSelectorProps {
   value: string;
@@ -13,21 +8,29 @@ interface TimeRangeSelectorProps {
 }
 
 export const TimeRangeSelector = ({ value, onChange }: TimeRangeSelectorProps) => {
+  const timeRanges = [
+    { label: '1 Month', value: 'month' },
+    { label: '3 Months', value: '3months' },
+    { label: '6 Months', value: '6months' },
+    { label: '1 Year', value: 'year' },
+    { label: '2 Years', value: '2years' },
+  ];
+
   return (
-    <div className="flex justify-between items-center mb-6">
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Select time range" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="week">1 Week</SelectItem>
-          <SelectItem value="month">1 Month</SelectItem>
-          <SelectItem value="3months">3 Months</SelectItem>
-          <SelectItem value="6months">6 Months</SelectItem>
-          <SelectItem value="year">1 Year</SelectItem>
-          <SelectItem value="2years">2 Years</SelectItem>
-        </SelectContent>
-      </Select>
+    <div className="flex justify-start gap-4 mb-6 overflow-x-auto">
+      {timeRanges.map((range) => (
+        <Button
+          key={range.value}
+          variant="ghost"
+          onClick={() => onChange(range.value)}
+          className={cn(
+            "whitespace-nowrap",
+            value === range.value && "underline underline-offset-4"
+          )}
+        >
+          {range.label}
+        </Button>
+      ))}
     </div>
   );
 };

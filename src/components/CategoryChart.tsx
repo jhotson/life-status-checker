@@ -10,9 +10,31 @@ interface CategoryChartProps {
 export const CategoryChart = ({ data, category, colorIndex }: CategoryChartProps) => {
   const color = `hsl(${colorIndex * (360 / 7)}, 70%, 50%)`;
 
+  // Calculate percentage change
+  const calculatePercentageChange = () => {
+    if (data.length < 2) return null;
+    const firstValue = data[0][category];
+    const lastValue = data[data.length - 1][category];
+    if (typeof firstValue !== 'number' || typeof lastValue !== 'number') return null;
+    const change = ((lastValue - firstValue) / firstValue) * 100;
+    return change;
+  };
+
+  const percentageChange = calculatePercentageChange();
+
   return (
     <div className="glass-card p-6 rounded-xl mb-4">
-      <h3 className="text-lg font-semibold mb-4">{category} Trend</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold">{category} Trend</h3>
+        {percentageChange !== null && (
+          <div className={cn(
+            "text-sm font-medium px-2 py-1 rounded",
+            percentageChange > 0 ? "text-green-600" : "text-red-600"
+          )}>
+            {percentageChange > 0 ? "+" : ""}{percentageChange.toFixed(1)}%
+          </div>
+        )}
+      </div>
       <div className="h-48">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
